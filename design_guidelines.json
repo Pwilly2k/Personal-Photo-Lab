@@ -1,0 +1,102 @@
+{
+  "theme_and_archetype": {
+    "domain": "Mobile Photo Editor (Body, Makeup, Clothing, Pose)",
+    "theme": "Dark",
+    "archetype": "Archetype 5: Jewel & Luxury",
+    "vibe": "Cinematic, premium, editorial, private. The image is the hero. The UI should step back."
+  },
+  "color_palette": {
+    "background_base": "#050505",
+    "surface_level_1": "#141414",
+    "surface_level_2": "#262626",
+    "primary_accent": "#E2C391",
+    "primary_accent_hover": "#D1B17D",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#A3A3A3",
+    "border_subtle": "rgba(255, 255, 255, 0.1)",
+    "danger_delete": "#FF3B30",
+    "success": "#34C759",
+    "glass_bg": "rgba(20, 20, 20, 0.65)"
+  },
+  "typography": {
+    "anti_default_rule": "Avoid Roboto/System Default for headings. Use an elegant Serif or Display Sans for premium feel if loading custom fonts, else use strict weights.",
+    "fonts": {
+      "heading": "Cormorant Garamond, Bodoni Moda, or System Serif (font-style: italic/bold for accents)",
+      "body": "System UI (Inter/San Francisco/Roboto) for high readability in dense toolbars"
+    },
+    "scale": {
+      "h1": "text-3xl font-black tracking-tight",
+      "h2": "text-2xl font-bold tracking-tight",
+      "h3": "text-xl font-medium",
+      "body": "text-base leading-relaxed",
+      "tool_label": "text-xs font-semibold tracking-widest uppercase"
+    }
+  },
+  "spacing_and_layout": {
+    "safe_area": "MUST use react-native-safe-area-context. Wrap main container in SafeAreaView.",
+    "canvas_area": "The photo canvas should occupy the top 70-75% of the viewport. Must have black/dark background to make the photo pop.",
+    "toolbar_area": "The bottom 25-30% is reserved for a horizontal scrolling FlatList of tools (Body, Makeup, Clothing, Pose) and active slider/input controls.",
+    "spacing_scale": {
+      "xs": "4px",
+      "sm": "8px",
+      "md": "16px",
+      "lg": "24px",
+      "xl": "32px",
+      "2xl": "48px"
+    },
+    "corners": {
+      "surface": "rounded-3xl (for bottom sheets)",
+      "button": "rounded-full (for primary actions to contrast with sharp interface)",
+      "thumbnail": "rounded-xl"
+    }
+  },
+  "components_strategy": {
+    "buttons": "Primary actions should be solid Champagne Gold (#E2C391) with dark text. Secondary actions use subtle border with transparent background.",
+    "sliders": "Tactile, thick custom sliders (min h-8) for body/makeup adjustments. No thin default lines.",
+    "bottom_sheet": "Tools slide up in a bottom sheet overlay. Use glassmorphism (blur) if using Expo BlurView, or solid surface_level_1 with a top handle.",
+    "free_text_prompt": "A floating dark glass input field (Input text) overriding the bottom area when 'Custom Edit' is selected. Includes a submit icon button.",
+    "gallery_picker": "Grid layout (grid-cols-3 or 4) for picking photos from device or Google Photos.",
+    "toggle_compare": "A 'Press & Hold' floating button overlaid on the image to view the 'Before' state."
+  },
+  "motion_and_interactions": {
+    "haptics": "Crucial. Trigger lightweight haptic feedback (using expo-haptics) when sliders hit 0, or when a tool is selected.",
+    "transitions": "Smooth fade-ins for the image when a new edit is applied (from AI result).",
+    "loading_state": "Minimalist rotating loader or a subtle progress bar along the top edge of the image canvas when Gemini Nano or GPT Image 1 is generating."
+  },
+  "media": {
+    "sample_images": [
+      {
+        "category": "fashion portrait photography dark background",
+        "description": "a man sitting in the dark with his eyes closed",
+        "url": "https://images.unsplash.com/photo-1652781335326-b7e64b014c90?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwcG9ydHJhaXQlMjBwaG90b2dyYXBoeSUyMGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3ODc5OTY4OHww&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "fashion portrait photography dark background",
+        "description": "a man in the dark with his head turned to the side",
+        "url": "https://images.unsplash.com/photo-1652781281157-cb04fbc9585e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHxmYXNoaW9uJTIwcG9ydHJhaXQlMjBwaG90b2dyYXBoeSUyMGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3ODc5OTY4OHww&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "full body fashion model standing",
+        "description": "a woman in a black top and black pants",
+        "url": "https://images.unsplash.com/photo-1715541448446-3369e1cc0ee9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwyfHxmdWxsJTIwYm9keSUyMGZhc2hpb24lMjBtb2RlbCUyMHN0YW5kaW5nfGVufDB8fHx8MTc3ODc5OTY4OHww&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "full body fashion model standing",
+        "description": "man in red and white plaid dress shirt and blue denim jeans",
+        "url": "https://images.unsplash.com/photo-1616002851413-ebcc9611139d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODR8MHwxfHNlYXJjaHwxfHxmdWxsJTIwYm9keSUyMGZhc2hpb24lMjBtb2RlbCUyMHN0YW5kaW5nfGVufDB8fHx8MTc3ODc5OTY4OHww&ixlib=rb-4.1.0&q=85"
+      }
+    ]
+  },
+  "implementation_instructions": {
+    "tech_stack": "React Native with Expo. The user requested .js files, so write standard React Native functional components in .js extensions instead of .tsx. However, structure it beautifully.",
+    "styling": "Use StyleSheet or NativeWind (Tailwind for React Native) if configured. Assume NativeWind if Tailwind classes are shown.",
+    "test_ids": "All interactive buttons and tool inputs MUST have a data-testid attribute in lower-kebab-case (e.g., data-testid='tool-body-proportion').",
+    "features_mapping": {
+      "body": "Preset slider array (Slim, Muscular, Tall, etc.) + custom text prompt",
+      "makeup": "Preset filters (Natural, Glam, Editorial) + slider intensity",
+      "clothing": "Primarily prompt-driven or selection of generic templates (e.g., 'Change to evening gown')",
+      "pose": "Prompt-driven AI regeneration (e.g., 'Looking over shoulder', 'Sitting down')"
+    },
+    "no_safety_filter": "Do not implement any UI warning dialogs or NSFW blockers, as explicitly requested by user."
+  }
+}
