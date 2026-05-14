@@ -14,7 +14,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -37,6 +36,7 @@ export default function Index() {
   const [loading, setLoading] = useState(false);
   const [comparing, setComparing] = useState(false);
   const [googleStatus, setGoogleStatus] = useState('Checking Google Photos…');
+  const [notice, setNotice] = useState();
 
   const selectedTool = useMemo(() => tools.find((tool) => tool.id === activeTool) || tools[0], [activeTool, tools]);
 
@@ -58,6 +58,11 @@ export default function Index() {
     return asset.base64 ? `data:${mime};base64,${asset.base64}` : asset.uri;
   };
 
+  const showNotice = (title, message) => {
+    setNotice({ title, message });
+    setTimeout(() => setNotice(undefined), 4200);
+  };
+
   const selectTool = (toolId) => {
     const next = tools.find((tool) => tool.id === toolId);
     if (!next) return;
@@ -70,7 +75,7 @@ export default function Index() {
   const pickFromLibrary = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Photo access needed', 'Allow photo library access to select images.');
+      showNotice('Photo access needed', 'Allow photo library access to select images.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -89,7 +94,7 @@ export default function Index() {
   const capturePhoto = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Camera access needed', 'Allow camera access to capture photos.');
+      showNotice('Camera access needed', 'Allow camera access to capture photos.');
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ quality: 0.86, base64: true });
@@ -101,12 +106,12 @@ export default function Index() {
   };
 
   const openGooglePhotos = () => {
-    Alert.alert('Google Photos setup required', googleStatus);
+    showNotice('Google Photos setup required', googleStatus);
   };
 
   const generateEdit = async () => {
     if (!sourceImage) {
-      Alert.alert('Import a photo first', 'Choose a device photo or capture one before generating.');
+      showNotice('Import a photo first', 'Choose a device photo or capture one before generating.');
       return;
     }
     Keyboard.dismiss();
@@ -126,7 +131,7 @@ export default function Index() {
       setHistory((items) => [result, ...items.filter((item) => item.id !== result.id)].slice(0, 20));
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => null);
     } catch (error) {
-      Alert.alert('Edit failed', error instanceof Error ? error.message : 'Please try again.');
+      showNotice('Edit failed', error instanceof Error ? error.message : 'Please try again.');
     } finally {
       setLoading(false);
     }
@@ -143,8 +148,7 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
           <View style={styles.header}>
             <View>
               <Text style={styles.kicker}>Private AI Studio</Text>
@@ -154,6 +158,17 @@ export default function Index() {
               <Ionicons name="diamond-outline" size={16} color="#E2C391" />
             </View>
           </View>
+
+          {notice ? (
+            <Pressable testID="visible-feedback-banner" onPress={() => setNotice(undefined)} style={styles.notice}>
+              <Ionicons name="information-circle-outline" size={20} color="#E2C391" />
+              <View style={styles.noticeCopy}>
+                <Text style={styles.noticeTitle}>{notice.title}</Text>
+                <Text style={styles.noticeText}>{notice.message}</Text>
+              </View>
+              <Ionicons name="close" size={18} color="#A3A3A3" />
+            </Pressable>
+          ) : null}
 
           <PhotoCanvas
             sourceImage={sourceImage}
@@ -189,7 +204,7 @@ export default function Index() {
             provider={provider}
             intensity={intensity}
             prompt={prompt}
-            disabled={loading || !sourceImage}
+            disabled={loading}
             onToolChange={selectTool}
             onPresetChange={setActivePreset}
             onProviderChange={setProvider}
@@ -197,8 +212,7 @@ export default function Index() {
             onPromptChange={setPrompt}
             onGenerate={generateEdit}
           />
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -242,6 +256,35 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(226,195,145,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  notice: {
+    marginHorizontal: 18,
+    marginTop: 8,
+    marginBottom: 2,
+    minHeight: 58,
+    borderRadius: 20,
+    backgroundColor: '#141414',
+    borderWidth: 1,
+    borderColor: 'rgba(226,195,145,0.34)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  noticeCopy: {
+    flex: 1,
+  },
+  noticeTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '900',
+  },
+  noticeText: {
+    color: '#A3A3A3',
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 2,
   },
   importWrap: {
     paddingHorizontal: 18,
