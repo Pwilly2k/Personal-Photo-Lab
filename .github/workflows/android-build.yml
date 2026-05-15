@@ -1,0 +1,74 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-android-apk:
+    name: Build Android APK (Expo -> Android)
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: ${{ runner.tool_cache }}/android-sdk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Yarn
+        run: npm install -g yarn@1.22.22
+
+      - name: Install Android SDK (platforms and build-tools)
+        uses: r0adkll/setup-android@v2
+        with:
+          api-level: 33
+          build-tools: 33.0.2
+
+      - name: Install project dependencies
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile || yarn install
+
+      - name: (Optional) Configure Android signing if keystore provided
+        if: ${{ secrets.ANDROID_KEYSTORE }}
+        run: |
+          mkdir -p frontend/android/app
+          echo "Decoding keystore from secret and writing to frontend/android/app/my-release-key.jks"
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > frontend/android/app/my-release-key.jks
+          echo "MYAPP_UPLOAD_STORE_FILE=app/my-release-key.jks" >> frontend/android/gradle.properties
+          echo "MYAPP_UPLOAD_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> frontend/android/gradle.properties
+          echo "MYAPP_UPLOAD_KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> frontend/android/gradle.properties
+          echo "MYAPP_UPLOAD_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> frontend/android/gradle.properties
+
+      - name: Prebuild native Android project (Expo)
+        working-directory: frontend
+        run: |
+          npx --yes expo prebuild --platform android --yes
+
+      - name: Build Release APK (Gradle)
+        run: |
+          cd frontend/android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Collect APKs and upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: |
+            frontend/android/app/build/outputs/**/*.apk
+
+      - name: Print artifact location
+        run: |
+          echo "Artifact uploaded. Check the workflow run Artifacts tab to download the built APK(s)."
