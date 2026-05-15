@@ -75,9 +75,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apks
-          path: frontend/android/app/build/outputs/**/*.apk          set -e
-          mkdir -p "$ANDROID_SDK_ROOT"
-          cd "$ANDROID_SDK_ROOT"
+          path: frontend/android/app/build/outputs/**/*.apk          
+          set -e mkdir -p "$ANDROID_SDK_ROOT" cd "$ANDROID_SDK_ROOT"
 
           # Download command-line tools (update URL to latest if necessary)
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
