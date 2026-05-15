@@ -21,11 +21,11 @@ jobs:
           java-version: '11'
 
       - name: Set up Node.js
-  uses: actions/setup-node@v4
-  with:
-    node-version: '20.19.4'
-    cache: 'yarn'
-    cache-dependency-path: frontend/yarn.lock
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.4'
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
 
       - name: Install Yarn
         run: npm install -g yarn@1.22.22
@@ -35,6 +35,47 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
         run: |
           set -e
+          mkdir -p "$ANDROID_SDK_ROOT"
+          cd "$ANDROID_SDK_ROOT"
+
+          # Download command-line tools (update URL to latest if necessary)
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d cmdline-tools
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/cmdline-tools/* cmdline-tools/latest/ || true
+
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+
+          # Accept licenses and install required packages
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-33" "build-tools;33.0.2" "cmdline-tools;latest"
+
+          # Persist env for later steps
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Install project dependencies
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile || yarn install
+
+      - name: Prebuild native Android project (Expo)
+        working-directory: frontend
+        run: |
+          npx --yes expo prebuild --platform android --yes
+
+      - name: Build Release APK (Gradle)
+        run: |
+          cd frontend/android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Collect APKs and upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: frontend/android/app/build/outputs/**/*.apk          set -e
           mkdir -p "$ANDROID_SDK_ROOT"
           cd "$ANDROID_SDK_ROOT"
 
